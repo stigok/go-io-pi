@@ -6,7 +6,7 @@ import "time"
 import "golang.org/x/sys/unix"
 
 const (
-	// Constants as defined in the C implementation
+	// As defined in the C implementation
 	IODIRA = 0x00
 	IODIRB = 0x01
 	IPOLA  = 0x02
@@ -17,7 +17,7 @@ const (
 	GPIOA  = 0x12
 	GPIOB  = 0x13
 
-	// Constant as defined in /usr/include/linux/i2c-dev.h
+	// As defined in /usr/include/linux/i2c-dev.h
 	I2C_SLAVE = 0x0703
 
 	// A single bus is split into two ports: pins 1-8 and 9-16
@@ -46,8 +46,11 @@ type I2CDevice struct {
 }
 
 // Create a new device object.
-// bus can be either a string path to a file/device, or an os.File pointer to
-// support multiple I2C-devices sharing the same file descriptor.
+// `bus` can be a string path to a file, or an os.File pointer to let multiple
+// devices share the same file descriptor.
+//
+// It is not safe to share device file descriptors in a multi-threaded
+// environment.
 func NewI2CDevice(bus interface{}, addr byte) *I2CDevice {
 	dev := I2CDevice{}
 	dev.Address = addr
@@ -66,7 +69,8 @@ func NewI2CDevice(bus interface{}, addr byte) *I2CDevice {
 	return &dev
 }
 
-// Initialise device
+// Initialise device. This must be called once per device. You are expected
+// to call `.Close()` to clean up resources when you're done.
 func (dev *I2CDevice) Init() error {
 	// If device object was initialised with a string path, open the file.
 	if dev.bus == nil {
@@ -305,7 +309,7 @@ func getBit(byt byte, bit uint8) uint8 {
 
 func main() {
 	path := "/dev/i2c-1"
-	bus := byte(0x20) // 0x21 for bus2
+	bus := byte(0x20) // Bus1: 0x20, Bus2: 0x21
 	dev := NewI2CDevice(path, bus)
 	err := dev.Init()
 	if err != nil {
