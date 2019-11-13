@@ -27,8 +27,8 @@ const (
 	PinPolarityNormal   PinPolarity = 0x00
 	PinPolarityInverted PinPolarity = 0xFF
 
-	Output PinMode = 0x00
-	Input  PinMode = 0xFF
+	ModeOutput PinMode = 0x00
+	ModeInput  PinMode = 0xFF
 
 	StateLow  PinState = 0
 	StateHigh PinState = 1
@@ -314,8 +314,8 @@ func main() {
 	defer dev.Close()
 
 	// Set mode on all ports
-	//dev.SetPortDirection(PortA, Output)
-	//dev.SetPortDirection(PortB, Input)
+	//dev.SetPortDirection(PortA, ModeOutput)
+	//dev.SetPortDirection(PortB, ModeInput)
 
 	// Set all outputs to LOW
 	//dev.WritePort(PortA, 0x00)
@@ -324,8 +324,8 @@ func main() {
 	//defer dev.WritePort(PortA, 0x00)
 	//defer dev.WritePort(PortB, 0x00)
 
-	dev.SetPortDirection(PortA, Input)
-	dev.SetPortDirection(PortB, Input)
+	dev.SetPortDirection(PortA, ModeInput)
+	dev.SetPortDirection(PortB, ModeInput)
 
 	for true {
 		//val, err := dev.ReadPin(3)
