@@ -21,8 +21,8 @@ const (
 	I2C_SLAVE = 0x0703
 
 	// A single bus is split into two ports: pins 1-8 and 9-16
-	PortA BoardPort = 0
-	PortB BoardPort = 1
+	BoardPortA BoardPort = 0
+	BoardPortB BoardPort = 1
 
 	PinPolarityNormal   PinPolarity = 0x00
 	PinPolarityInverted PinPolarity = 0xFF
@@ -93,10 +93,10 @@ func (dev *I2CDevice) Init() error {
 	dev.WriteByteData(IOCON, 0x22) // MCP23017 specific
 	dev.WriteByteData(IODIRA, 0xFF)
 	dev.WriteByteData(IODIRB, 0xFF)
-	dev.SetPortPullups(PortA, 0x00)
-	dev.SetPortPullups(PortB, 0x00)
-	dev.SetPortPolarity(PortA, PinPolarityNormal)
-	dev.SetPortPolarity(PortB, PinPolarityNormal)
+	dev.SetPortPullups(BoardPortA, 0x00)
+	dev.SetPortPullups(BoardPortB, 0x00)
+	dev.SetPortPolarity(BoardPortA, PinPolarityNormal)
+	dev.SetPortPolarity(BoardPortB, PinPolarityNormal)
 
 	return nil
 }
@@ -145,9 +145,9 @@ func (dev *I2CDevice) WriteByteData(reg byte, value byte) error {
 // Collectively enable 100K pull-up resistors on all pins on a port.
 func (dev *I2CDevice) SetPortPullups(port BoardPort, state byte) error {
 	switch port {
-	case PortA:
+	case BoardPortA:
 		return dev.WriteByteData(GPPUA, state)
-	case PortB:
+	case BoardPortB:
 		return dev.WriteByteData(GPPUB, state)
 	default:
 		return fmt.Errorf("invalid port: %v\n", port)
@@ -159,7 +159,7 @@ func (dev *I2CDevice) SetPinPullup(pin uint8, state byte) error {
 	pin, port := translatePin(pin)
 
 	var reg byte
-	if port == PortA {
+	if port == BoardPortA {
 		reg = GPPUA
 	} else {
 		reg = GPPUB
@@ -177,9 +177,9 @@ func (dev *I2CDevice) SetPinPullup(pin uint8, state byte) error {
 // Also known as normal and inverted logic.
 func (dev *I2CDevice) SetPortPolarity(port BoardPort, pol PinPolarity) error {
 	switch port {
-	case PortA:
+	case BoardPortA:
 		return dev.WriteByteData(IPOLA, byte(pol))
-	case PortB:
+	case BoardPortB:
 		return dev.WriteByteData(IPOLB, byte(pol))
 	default:
 		return fmt.Errorf("invalid port: %v\n", port)
@@ -191,7 +191,7 @@ func (dev *I2CDevice) SetPinPolarity(pin uint8, pol PinPolarity) error {
 	pin, port := translatePin(pin)
 
 	var reg byte
-	if port == PortA {
+	if port == BoardPortA {
 		reg = IPOLA
 	} else {
 		reg = IPOLB
@@ -208,9 +208,9 @@ func (dev *I2CDevice) SetPinPolarity(pin uint8, pol PinPolarity) error {
 // Collectively set all pins on a port to specific mode.
 func (dev *I2CDevice) SetPortDirection(port BoardPort, mode PinMode) error {
 	switch port {
-	case PortA:
+	case BoardPortA:
 		return dev.WriteByteData(IODIRA, byte(mode))
-	case PortB:
+	case BoardPortB:
 		return dev.WriteByteData(IODIRB, byte(mode))
 	default:
 		return fmt.Errorf("invalid port: %v\n", port)
@@ -222,7 +222,7 @@ func (dev *I2CDevice) SetPinDirection(pin uint8, mode PinMode) error {
 	pin, port := translatePin(pin)
 
 	var reg byte
-	if port == PortA {
+	if port == BoardPortA {
 		reg = IODIRA
 	} else {
 		reg = IODIRB
@@ -239,9 +239,9 @@ func (dev *I2CDevice) SetPinDirection(pin uint8, mode PinMode) error {
 // Collectively set all pins on the port to a specific state.
 func (dev *I2CDevice) WritePort(port BoardPort, state byte) error {
 	switch port {
-	case PortA:
+	case BoardPortA:
 		return dev.WriteByteData(GPIOA, state)
-	case PortB:
+	case BoardPortB:
 		return dev.WriteByteData(GPIOB, state)
 	default:
 		return fmt.Errorf("invalid port: %v\n", port)
@@ -252,9 +252,9 @@ func (dev *I2CDevice) WritePort(port BoardPort, state byte) error {
 // Returns a zero byte if error != nil.
 func (dev *I2CDevice) ReadPort(port BoardPort) (byte, error) {
 	switch port {
-	case PortA:
+	case BoardPortA:
 		return dev.ReadByteData(GPIOA)
-	case PortB:
+	case BoardPortB:
 		return dev.ReadByteData(GPIOB)
 	default:
 		return 0x00, fmt.Errorf("invalid port: %v\n", port)
@@ -276,9 +276,9 @@ func (dev *I2CDevice) WritePin(pin uint8, state PinState) error {
 // Translate a pin number 1-16 into 0-index pin on a specific port.
 func translatePin(pin uint8) (uint8, BoardPort) {
 	if pin > 8 {
-		return pin - 1 - 8, PortB
+		return pin - 1 - 8, BoardPortB
 	} else {
-		return pin - 1, PortA
+		return pin - 1, BoardPortA
 	}
 }
 
@@ -318,18 +318,18 @@ func main() {
 	defer dev.Close()
 
 	// Set mode on all ports
-	//dev.SetPortDirection(PortA, ModeOutput)
-	//dev.SetPortDirection(PortB, ModeInput)
+	//dev.SetPortDirection(BoardPortA, ModeOutput)
+	//dev.SetPortDirection(BoardPortB, ModeInput)
 
 	// Set all outputs to LOW
-	//dev.WritePort(PortA, 0x00)
-	//dev.WritePort(PortB, 0x00)
+	//dev.WritePort(BoardPortA, 0x00)
+	//dev.WritePort(BoardPortB, 0x00)
 
-	//defer dev.WritePort(PortA, 0x00)
-	//defer dev.WritePort(PortB, 0x00)
+	//defer dev.WritePort(BoardPortA, 0x00)
+	//defer dev.WritePort(BoardPortB, 0x00)
 
-	dev.SetPortDirection(PortA, ModeInput)
-	dev.SetPortDirection(PortB, ModeInput)
+	dev.SetPortDirection(BoardPortA, ModeInput)
+	dev.SetPortDirection(BoardPortB, ModeInput)
 
 	for true {
 		//val, err := dev.ReadPin(3)
