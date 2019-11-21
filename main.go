@@ -91,8 +91,8 @@ func (dev *I2CDevice) Init() error {
 	// Board initialisation
 	// TODO: Handle errors
 	dev.WriteByteData(IOCON, 0x22) // MCP23017 specific
-	dev.WriteByteData(IODIRA, 0xFF)
-	dev.WriteByteData(IODIRB, 0xFF)
+	dev.SetPortDirection(BoardPortA, ModeInput);
+	dev.SetPortDirection(BoardPortB, ModeInput);
 	dev.SetPortPullups(BoardPortA, 0x00)
 	dev.SetPortPullups(BoardPortB, 0x00)
 	dev.SetPortPolarity(BoardPortA, PinPolarityNormal)
