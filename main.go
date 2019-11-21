@@ -328,24 +328,22 @@ func main() {
 	//defer dev.WritePort(BoardPortA, 0x00)
 	//defer dev.WritePort(BoardPortB, 0x00)
 
-	dev.SetPortDirection(BoardPortA, ModeInput)
-	dev.SetPortDirection(BoardPortB, ModeInput)
+	dev.SetPortDirection(BoardPortA, ModeOutput)
+	dev.SetPortDirection(BoardPortB, ModeOutput)
 
-	for true {
-		//val, err := dev.ReadPin(3)
-		a, err := dev.ReadByteData(GPIOA)
-		if err != nil {
-			panic(err)
-		}
+	pins := []uint8{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }
 
-		b, err := dev.ReadByteData(GPIOB)
-		if err != nil {
-			panic(err)
-		}
-
-		fmt.Printf("%08b %08b\n", a, b)
-		time.Sleep(500 * time.Millisecond)
+	fmt.Println("Enabling pins:", pins)
+	for _, p := range(pins) {
+		dev.WritePin(p, StateHigh)
+		time.Sleep(100 * time.Millisecond)
 	}
 
-	fmt.Println("Done!")
+	fmt.Println("Disabling pins:", pins)
+	for _, p := range(pins) {
+		dev.WritePin(p, StateLow)
+		time.Sleep(100 * time.Millisecond)
+	}
+
+	fmt.Println("Exiting!")
 }
