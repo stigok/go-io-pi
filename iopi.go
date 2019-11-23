@@ -1,4 +1,4 @@
-package main
+package iopi
 
 import "fmt"
 import "os"
