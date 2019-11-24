@@ -98,17 +98,21 @@ func (dev *I2CDevice) Init() error {
 			dev.Address, err)
 	}
 
+	dev.driverInit()
+
+	return nil
+}
+
+func (dev *I2CDevice) driverInit() {
 	// Board initialisation
 	// TODO: Handle errors
 	dev.WriteByteData(IOCON, 0x22) // MCP23017 specific
-	dev.SetPortDirection(BoardPortA, ModeInput);
-	dev.SetPortDirection(BoardPortB, ModeInput);
+	dev.SetPortDirection(BoardPortA, ModeInput)
+	dev.SetPortDirection(BoardPortB, ModeInput)
 	dev.SetPortPullups(BoardPortA, 0x00)
 	dev.SetPortPullups(BoardPortB, 0x00)
 	dev.SetPortPolarity(BoardPortA, PinPolarityNormal)
 	dev.SetPortPolarity(BoardPortB, PinPolarityNormal)
-
-	return nil
 }
 
 // Clean up resources.
