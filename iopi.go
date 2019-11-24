@@ -3,7 +3,6 @@ package iopi
 import (
 	"fmt"
 	"os"
-	"time"
 
 	"golang.org/x/sys/unix"
 )
@@ -308,45 +307,4 @@ func getBit(byt byte, bit uint8) uint8 {
 	} else {
 		return 0
 	}
-}
-
-func main() {
-	path := "/dev/i2c-1"
-	bus := byte(0x20) // Bus1: 0x20, Bus2: 0x21
-	dev := NewI2CDevice(path, bus)
-	err := dev.Init()
-	if err != nil {
-		panic(err)
-	}
-	defer dev.Close()
-
-	// Set mode on all ports
-	//dev.SetPortDirection(BoardPortA, ModeOutput)
-	//dev.SetPortDirection(BoardPortB, ModeInput)
-
-	// Set all outputs to LOW
-	//dev.WritePort(BoardPortA, 0x00)
-	//dev.WritePort(BoardPortB, 0x00)
-
-	//defer dev.WritePort(BoardPortA, 0x00)
-	//defer dev.WritePort(BoardPortB, 0x00)
-
-	dev.SetPortDirection(BoardPortA, ModeOutput)
-	dev.SetPortDirection(BoardPortB, ModeOutput)
-
-	pins := []uint8{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }
-
-	fmt.Println("Enabling pins:", pins)
-	for _, p := range(pins) {
-		dev.WritePin(p, StateHigh)
-		time.Sleep(100 * time.Millisecond)
-	}
-
-	fmt.Println("Disabling pins:", pins)
-	for _, p := range(pins) {
-		dev.WritePin(p, StateLow)
-		time.Sleep(100 * time.Millisecond)
-	}
-
-	fmt.Println("Exiting!")
 }
