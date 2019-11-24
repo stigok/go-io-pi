@@ -7,6 +7,17 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+type BoardPort uint8
+type PinMode byte
+type PinPolarity byte
+type PinState uint8
+
+type I2CDevice struct {
+	Address byte   // I2C device address
+	Path    string // e.g. /dev/i2c-1
+	bus     *os.File
+}
+
 const (
 	// As defined in the C implementation
 	IODIRA = 0x00
@@ -21,31 +32,28 @@ const (
 
 	// As defined in /usr/include/linux/i2c-dev.h
 	I2C_SLAVE = 0x0703
-
-	// A single bus is split into two ports: pins 1-8 and 9-16
-	BoardPortA BoardPort = 0
-	BoardPortB BoardPort = 1
-
-	PinPolarityNormal   PinPolarity = 0x00
-	PinPolarityInverted PinPolarity = 0xFF
-
-	ModeOutput PinMode = 0x00
-	ModeInput  PinMode = 0xFF
-
-	StateLow  PinState = 0
-	StateHigh PinState = 1
 )
 
-type BoardPort uint8
-type PinMode byte
-type PinPolarity byte
-type PinState int
+const (
+	// A single bus is split into two ports: pins 1-8 and 9-16
+	BoardPortA BoardPort = iota
+	BoardPortB
+)
 
-type I2CDevice struct {
-	Address byte   // I2C device address
-	Path    string // e.g. /dev/i2c-1
-	bus     *os.File
-}
+const (
+	PinPolarityNormal PinPolarity = iota
+	PinPolarityInverted
+)
+
+const (
+	ModeOutput PinMode = iota
+	ModeInput
+)
+
+const (
+	StateLow PinState = iota
+	StateHigh
+)
 
 // Create a new device object.
 // `bus` can be a string path to a file, or an os.File pointer to let multiple
