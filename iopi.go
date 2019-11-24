@@ -55,25 +55,22 @@ const (
 	High
 )
 
+type ReadWriteCloserSpecial interface {
+	io.ReadWriteCloser
+	Fd()
+}
+
 // Create a new device object.
 // `bus` can be a string path to a file, or an os.File pointer to let multiple
 // devices share the same file descriptor.
 //
 // TODO: It is not yet safe to share device file descriptors in a multi-threaded
 // environment.
-func NewDevice(bus interface{}, addr byte) *Device {
-	dev := Device{}
-	dev.Address = addr
-
-	// Accepting either a string or an *os.File makes us able to create multiple
-	// devices with different addresses sharing the same file descriptor.
-	switch b := bus.(type) {
-	case string:
-		dev.Path = b
-		dev.bus = nil
-	case *os.File:
-		dev.Path = b.Name()
-		dev.bus = b
+func NewDevice(p string, addr byte) *Device {
+	dev := Device{
+		Address: addr,
+		Path: p,
+		bus: nil,
 	}
 
 	return &dev
