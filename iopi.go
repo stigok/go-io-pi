@@ -8,7 +8,7 @@ import (
 )
 
 type Port uint8
-type PinMode byte
+type Mode byte
 type PinPolarity byte
 type PinState uint8
 
@@ -46,8 +46,8 @@ const (
 )
 
 const (
-	ModeOutput PinMode = iota
-	ModeInput
+	Output Mode = iota
+	Input
 )
 
 const (
@@ -107,8 +107,8 @@ func (dev *I2CDevice) driverInit() {
 	// Board initialisation
 	// TODO: Handle errors
 	dev.WriteByteData(IOCON, 0x22) // MCP23017 specific
-	dev.SetPortDirection(PortA, ModeInput)
-	dev.SetPortDirection(PortB, ModeInput)
+	dev.SetPortDirection(PortA, Input)
+	dev.SetPortDirection(PortB, Input)
 	dev.SetPortPullups(PortA, 0x00)
 	dev.SetPortPullups(PortB, 0x00)
 	dev.SetPortPolarity(PortA, PinPolarityNormal)
@@ -220,7 +220,7 @@ func (dev *I2CDevice) SetPinPolarity(pin uint8, pol PinPolarity) error {
 }
 
 // Collectively set all pins on a port to specific mode.
-func (dev *I2CDevice) SetPortDirection(port Port, mode PinMode) error {
+func (dev *I2CDevice) SetPortDirection(port Port, mode Mode) error {
 	switch port {
 	case PortA:
 		return dev.WriteByteData(IODIRA, byte(mode))
@@ -232,7 +232,7 @@ func (dev *I2CDevice) SetPortDirection(port Port, mode PinMode) error {
 }
 
 // Set direction of a single pin
-func (dev *I2CDevice) SetPinDirection(pin uint8, mode PinMode) error {
+func (dev *I2CDevice) SetPinDirection(pin uint8, mode Mode) error {
 	pin, port := translatePin(pin)
 
 	var reg byte
