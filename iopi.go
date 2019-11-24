@@ -1,9 +1,12 @@
 package iopi
 
-import "fmt"
-import "os"
-import "time"
-import "golang.org/x/sys/unix"
+import (
+	"fmt"
+	"os"
+	"time"
+
+	"golang.org/x/sys/unix"
+)
 
 const (
 	// As defined in the C implementation
