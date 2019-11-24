@@ -59,7 +59,7 @@ const (
 // `bus` can be a string path to a file, or an os.File pointer to let multiple
 // devices share the same file descriptor.
 //
-// It is not safe to share device file descriptors in a multi-threaded
+// TODO: It is not yet safe to share device file descriptors in a multi-threaded
 // environment.
 func NewI2CDevice(bus interface{}, addr byte) *I2CDevice {
 	dev := I2CDevice{}
