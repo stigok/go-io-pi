@@ -9,7 +9,7 @@ import (
 
 type Port uint8
 type Mode byte
-type PinPolarity byte
+type Polarity byte
 type PinState uint8
 
 type I2CDevice struct {
@@ -41,8 +41,8 @@ const (
 )
 
 const (
-	PinPolarityNormal PinPolarity = iota
-	PinPolarityInverted
+	PolarityNormal Polarity = iota
+	PolarityInverted
 )
 
 const (
@@ -111,8 +111,8 @@ func (dev *I2CDevice) driverInit() {
 	dev.SetPortDirection(PortB, Input)
 	dev.SetPortPullups(PortA, 0x00)
 	dev.SetPortPullups(PortB, 0x00)
-	dev.SetPortPolarity(PortA, PinPolarityNormal)
-	dev.SetPortPolarity(PortB, PinPolarityNormal)
+	dev.SetPortPolarity(PortA, PolarityNormal)
+	dev.SetPortPolarity(PortB, PolarityNormal)
 }
 
 // Clean up resources.
@@ -189,7 +189,7 @@ func (dev *I2CDevice) SetPinPullup(pin uint8, state byte) error {
 
 // Collectively set the polarity of all pins on a port.
 // Also known as normal and inverted logic.
-func (dev *I2CDevice) SetPortPolarity(port Port, pol PinPolarity) error {
+func (dev *I2CDevice) SetPortPolarity(port Port, pol Polarity) error {
 	switch port {
 	case PortA:
 		return dev.WriteByteData(IPOLA, byte(pol))
@@ -201,7 +201,7 @@ func (dev *I2CDevice) SetPortPolarity(port Port, pol PinPolarity) error {
 }
 
 // Set polarity of a single pin
-func (dev *I2CDevice) SetPinPolarity(pin uint8, pol PinPolarity) error {
+func (dev *I2CDevice) SetPolarity(pin uint8, pol Polarity) error {
 	pin, port := translatePin(pin)
 
 	var reg byte
