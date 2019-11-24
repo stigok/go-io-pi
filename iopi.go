@@ -7,7 +7,7 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-type BoardPort uint8
+type Port uint8
 type PinMode byte
 type PinPolarity byte
 type PinState uint8
@@ -36,8 +36,8 @@ const (
 
 const (
 	// A single bus is split into two ports: pins 1-8 and 9-16
-	BoardPortA BoardPort = iota
-	BoardPortB
+	PortA Port = iota
+	PortB
 )
 
 const (
@@ -107,12 +107,12 @@ func (dev *I2CDevice) driverInit() {
 	// Board initialisation
 	// TODO: Handle errors
 	dev.WriteByteData(IOCON, 0x22) // MCP23017 specific
-	dev.SetPortDirection(BoardPortA, ModeInput)
-	dev.SetPortDirection(BoardPortB, ModeInput)
-	dev.SetPortPullups(BoardPortA, 0x00)
-	dev.SetPortPullups(BoardPortB, 0x00)
-	dev.SetPortPolarity(BoardPortA, PinPolarityNormal)
-	dev.SetPortPolarity(BoardPortB, PinPolarityNormal)
+	dev.SetPortDirection(PortA, ModeInput)
+	dev.SetPortDirection(PortB, ModeInput)
+	dev.SetPortPullups(PortA, 0x00)
+	dev.SetPortPullups(PortB, 0x00)
+	dev.SetPortPolarity(PortA, PinPolarityNormal)
+	dev.SetPortPolarity(PortB, PinPolarityNormal)
 }
 
 // Clean up resources.
@@ -157,11 +157,11 @@ func (dev *I2CDevice) WriteByteData(reg byte, value byte) error {
 }
 
 // Collectively enable 100K pull-up resistors on all pins on a port.
-func (dev *I2CDevice) SetPortPullups(port BoardPort, state byte) error {
+func (dev *I2CDevice) SetPortPullups(port Port, state byte) error {
 	switch port {
-	case BoardPortA:
+	case PortA:
 		return dev.WriteByteData(GPPUA, state)
-	case BoardPortB:
+	case PortB:
 		return dev.WriteByteData(GPPUB, state)
 	default:
 		return fmt.Errorf("invalid port: %v\n", port)
@@ -173,7 +173,7 @@ func (dev *I2CDevice) SetPinPullup(pin uint8, state byte) error {
 	pin, port := translatePin(pin)
 
 	var reg byte
-	if port == BoardPortA {
+	if port == PortA {
 		reg = GPPUA
 	} else {
 		reg = GPPUB
@@ -189,11 +189,11 @@ func (dev *I2CDevice) SetPinPullup(pin uint8, state byte) error {
 
 // Collectively set the polarity of all pins on a port.
 // Also known as normal and inverted logic.
-func (dev *I2CDevice) SetPortPolarity(port BoardPort, pol PinPolarity) error {
+func (dev *I2CDevice) SetPortPolarity(port Port, pol PinPolarity) error {
 	switch port {
-	case BoardPortA:
+	case PortA:
 		return dev.WriteByteData(IPOLA, byte(pol))
-	case BoardPortB:
+	case PortB:
 		return dev.WriteByteData(IPOLB, byte(pol))
 	default:
 		return fmt.Errorf("invalid port: %v\n", port)
@@ -205,7 +205,7 @@ func (dev *I2CDevice) SetPinPolarity(pin uint8, pol PinPolarity) error {
 	pin, port := translatePin(pin)
 
 	var reg byte
-	if port == BoardPortA {
+	if port == PortA {
 		reg = IPOLA
 	} else {
 		reg = IPOLB
@@ -220,11 +220,11 @@ func (dev *I2CDevice) SetPinPolarity(pin uint8, pol PinPolarity) error {
 }
 
 // Collectively set all pins on a port to specific mode.
-func (dev *I2CDevice) SetPortDirection(port BoardPort, mode PinMode) error {
+func (dev *I2CDevice) SetPortDirection(port Port, mode PinMode) error {
 	switch port {
-	case BoardPortA:
+	case PortA:
 		return dev.WriteByteData(IODIRA, byte(mode))
-	case BoardPortB:
+	case PortB:
 		return dev.WriteByteData(IODIRB, byte(mode))
 	default:
 		return fmt.Errorf("invalid port: %v\n", port)
@@ -236,7 +236,7 @@ func (dev *I2CDevice) SetPinDirection(pin uint8, mode PinMode) error {
 	pin, port := translatePin(pin)
 
 	var reg byte
-	if port == BoardPortA {
+	if port == PortA {
 		reg = IODIRA
 	} else {
 		reg = IODIRB
@@ -251,11 +251,11 @@ func (dev *I2CDevice) SetPinDirection(pin uint8, mode PinMode) error {
 }
 
 // Collectively set all pins on the port to a specific state.
-func (dev *I2CDevice) WritePort(port BoardPort, state byte) error {
+func (dev *I2CDevice) WritePort(port Port, state byte) error {
 	switch port {
-	case BoardPortA:
+	case PortA:
 		return dev.WriteByteData(GPIOA, state)
-	case BoardPortB:
+	case PortB:
 		return dev.WriteByteData(GPIOB, state)
 	default:
 		return fmt.Errorf("invalid port: %v\n", port)
@@ -264,11 +264,11 @@ func (dev *I2CDevice) WritePort(port BoardPort, state byte) error {
 
 // Return a byte describing the state of all pins on the selected port.
 // Returns a zero byte if error != nil.
-func (dev *I2CDevice) ReadPort(port BoardPort) (byte, error) {
+func (dev *I2CDevice) ReadPort(port Port) (byte, error) {
 	switch port {
-	case BoardPortA:
+	case PortA:
 		return dev.ReadByteData(GPIOA)
-	case BoardPortB:
+	case PortB:
 		return dev.ReadByteData(GPIOB)
 	default:
 		return 0x00, fmt.Errorf("invalid port: %v\n", port)
@@ -288,11 +288,11 @@ func (dev *I2CDevice) WritePin(pin uint8, state PinState) error {
 }
 
 // Translate a pin number 1-16 into 0-index pin on a specific port.
-func translatePin(pin uint8) (uint8, BoardPort) {
+func translatePin(pin uint8) (uint8, Port) {
 	if pin > 8 {
-		return pin - 1 - 8, BoardPortB
+		return pin - 1 - 8, PortB
 	} else {
-		return pin - 1, BoardPortA
+		return pin - 1, PortA
 	}
 }
 
