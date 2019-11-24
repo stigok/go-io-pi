@@ -12,7 +12,7 @@ type Mode byte
 type Polarity byte
 type State uint8
 
-type I2CDevice struct {
+type Device struct {
 	Address byte   // I2C device address
 	Path    string // e.g. /dev/i2c-1
 	bus     *os.File
@@ -61,8 +61,8 @@ const (
 //
 // TODO: It is not yet safe to share device file descriptors in a multi-threaded
 // environment.
-func NewI2CDevice(bus interface{}, addr byte) *I2CDevice {
-	dev := I2CDevice{}
+func NewDevice(bus interface{}, addr byte) *Device {
+	dev := Device{}
 	dev.Address = addr
 
 	// Accepting either a string or an *os.File makes us able to create multiple
@@ -81,7 +81,7 @@ func NewI2CDevice(bus interface{}, addr byte) *I2CDevice {
 
 // Initialise device. This must be called once per device. You are expected
 // to call `.Close()` to clean up resources when you're done.
-func (dev *I2CDevice) Init() error {
+func (dev *Device) Init() error {
 	// If device object was initialised with a string path, open the file.
 	if dev.bus == nil {
 		file, err := os.OpenFile(dev.Path, os.O_RDWR, os.ModeCharDevice)
@@ -103,7 +103,7 @@ func (dev *I2CDevice) Init() error {
 	return nil
 }
 
-func (dev *I2CDevice) driverInit() {
+func (dev *Device) driverInit() {
 	// Board initialisation
 	// TODO: Handle errors
 	dev.WriteByteData(IOCON, 0x22) // MCP23017 specific
@@ -116,14 +116,14 @@ func (dev *I2CDevice) driverInit() {
 }
 
 // Clean up resources.
-func (dev *I2CDevice) Close() error {
+func (dev *Device) Close() error {
 	return dev.bus.Close()
 }
 
 // Read raw data from a register.
 // This is a low-level interface. You probably want to use the higher level
 // functions to manipulate the board.
-func (dev *I2CDevice) ReadByteData(reg byte) (byte, error) {
+func (dev *Device) ReadByteData(reg byte) (byte, error) {
 	buf := make([]byte, 1)
 	buf[0] = reg
 
@@ -144,7 +144,7 @@ func (dev *I2CDevice) ReadByteData(reg byte) (byte, error) {
 // Write raw data to a register.
 // This is a low-level interface. You probably want to use the higher level
 // functions to manipulate the board.
-func (dev *I2CDevice) WriteByteData(reg byte, value byte) error {
+func (dev *Device) WriteByteData(reg byte, value byte) error {
 	buf := []byte{reg, value}
 
 	//fmt.Printf("write 0x%08b to addr 0x%08b\n", value, reg)
@@ -157,7 +157,7 @@ func (dev *I2CDevice) WriteByteData(reg byte, value byte) error {
 }
 
 // Collectively enable 100K pull-up resistors on all pins on a port.
-func (dev *I2CDevice) SetPortPullups(port Port, state byte) error {
+func (dev *Device) SetPortPullups(port Port, state byte) error {
 	switch port {
 	case PortA:
 		return dev.WriteByteData(GPPUA, state)
@@ -169,7 +169,7 @@ func (dev *I2CDevice) SetPortPullups(port Port, state byte) error {
 }
 
 // Enable 100K pull-up resistor on a single pin
-func (dev *I2CDevice) SetPinPullup(pin uint8, state byte) error {
+func (dev *Device) SetPinPullup(pin uint8, state byte) error {
 	pin, port := translatePin(pin)
 
 	var reg byte
@@ -189,7 +189,7 @@ func (dev *I2CDevice) SetPinPullup(pin uint8, state byte) error {
 
 // Collectively set the polarity of all pins on a port.
 // Also known as normal and inverted logic.
-func (dev *I2CDevice) SetPortPolarity(port Port, pol Polarity) error {
+func (dev *Device) SetPortPolarity(port Port, pol Polarity) error {
 	switch port {
 	case PortA:
 		return dev.WriteByteData(IPOLA, byte(pol))
@@ -201,7 +201,7 @@ func (dev *I2CDevice) SetPortPolarity(port Port, pol Polarity) error {
 }
 
 // Set polarity of a single pin
-func (dev *I2CDevice) SetPolarity(pin uint8, pol Polarity) error {
+func (dev *Device) SetPolarity(pin uint8, pol Polarity) error {
 	pin, port := translatePin(pin)
 
 	var reg byte
@@ -220,7 +220,7 @@ func (dev *I2CDevice) SetPolarity(pin uint8, pol Polarity) error {
 }
 
 // Collectively set all pins on a port to specific mode.
-func (dev *I2CDevice) SetPortDirection(port Port, mode Mode) error {
+func (dev *Device) SetPortDirection(port Port, mode Mode) error {
 	switch port {
 	case PortA:
 		return dev.WriteByteData(IODIRA, byte(mode))
@@ -232,7 +232,7 @@ func (dev *I2CDevice) SetPortDirection(port Port, mode Mode) error {
 }
 
 // Set direction of a single pin
-func (dev *I2CDevice) SetPinDirection(pin uint8, mode Mode) error {
+func (dev *Device) SetPinDirection(pin uint8, mode Mode) error {
 	pin, port := translatePin(pin)
 
 	var reg byte
@@ -251,7 +251,7 @@ func (dev *I2CDevice) SetPinDirection(pin uint8, mode Mode) error {
 }
 
 // Collectively set all pins on the port to a specific state.
-func (dev *I2CDevice) WritePort(port Port, state byte) error {
+func (dev *Device) WritePort(port Port, state byte) error {
 	switch port {
 	case PortA:
 		return dev.WriteByteData(GPIOA, state)
@@ -264,7 +264,7 @@ func (dev *I2CDevice) WritePort(port Port, state byte) error {
 
 // Return a byte describing the state of all pins on the selected port.
 // Returns a zero byte if error != nil.
-func (dev *I2CDevice) ReadPort(port Port) (byte, error) {
+func (dev *Device) ReadPort(port Port) (byte, error) {
 	switch port {
 	case PortA:
 		return dev.ReadByteData(GPIOA)
@@ -276,7 +276,7 @@ func (dev *I2CDevice) ReadPort(port Port) (byte, error) {
 }
 
 // Set single pin to a specific state.
-func (dev *I2CDevice) WritePin(pin uint8, state State) error {
+func (dev *Device) WritePin(pin uint8, state State) error {
 	pin, port := translatePin(pin)
 	portState, err := dev.ReadPort(port)
 	if err != nil {
@@ -297,7 +297,7 @@ func translatePin(pin uint8) (uint8, Port) {
 }
 
 // Return the state of a single pin.
-func (dev *I2CDevice) ReadPin(pin uint8) (State, error) {
+func (dev *Device) ReadPin(pin uint8) (State, error) {
 	pin, port := translatePin(pin)
 	portState, err := dev.ReadPort(port)
 	return State(getBit(portState, pin)), err
