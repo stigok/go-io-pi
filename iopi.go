@@ -10,7 +10,7 @@ import (
 type Port uint8
 type Mode byte
 type Polarity byte
-type PinState uint8
+type State uint8
 
 type I2CDevice struct {
 	Address byte   // I2C device address
@@ -51,8 +51,8 @@ const (
 )
 
 const (
-	StateLow PinState = iota
-	StateHigh
+	Low State = iota
+	High
 )
 
 // Create a new device object.
@@ -276,7 +276,7 @@ func (dev *I2CDevice) ReadPort(port Port) (byte, error) {
 }
 
 // Set single pin to a specific state.
-func (dev *I2CDevice) WritePin(pin uint8, state PinState) error {
+func (dev *I2CDevice) WritePin(pin uint8, state State) error {
 	pin, port := translatePin(pin)
 	portState, err := dev.ReadPort(port)
 	if err != nil {
@@ -297,10 +297,10 @@ func translatePin(pin uint8) (uint8, Port) {
 }
 
 // Return the state of a single pin.
-func (dev *I2CDevice) ReadPin(pin uint8) (PinState, error) {
+func (dev *I2CDevice) ReadPin(pin uint8) (State, error) {
 	pin, port := translatePin(pin)
 	portState, err := dev.ReadPort(port)
-	return PinState(getBit(portState, pin)), err
+	return State(getBit(portState, pin)), err
 }
 
 // Set a single bit in a byte. All values except 0 is considered 1.
