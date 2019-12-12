@@ -2,6 +2,7 @@ package iopi
 
 import (
 	"fmt"
+	"io"
 	"os"
 
 	"golang.org/x/sys/unix"
@@ -15,7 +16,13 @@ type State uint8
 type Device struct {
 	Address byte   // I2C device address
 	Path    string // e.g. /dev/i2c-1
-	bus     *os.File
+	bus     ReadWriteCloserSpecial
+}
+
+type ReadWriteCloserSpecial interface {
+	io.ReadWriteCloser
+	Fd() uintptr
+	Name() string
 }
 
 const (
@@ -55,22 +62,17 @@ const (
 	High
 )
 
-type ReadWriteCloserSpecial interface {
-	io.ReadWriteCloser
-	Fd()
-}
-
 // Create a new device object.
 // `bus` can be a string path to a file, or an os.File pointer to let multiple
 // devices share the same file descriptor.
 //
 // TODO: It is not yet safe to share device file descriptors in a multi-threaded
 // environment.
-func NewDevice(p string, addr byte) *Device {
+func NewDevice(file ReadWriteCloserSpecial, addr byte) *Device {
 	dev := Device{
 		Address: addr,
-		Path: p,
-		bus: nil,
+		Path: file.Name(),
+		bus: file,
 	}
 
 	return &dev
@@ -79,17 +81,14 @@ func NewDevice(p string, addr byte) *Device {
 // Initialise device. This must be called once per device. You are expected
 // to call `.Close()` to clean up resources when you're done.
 func (dev *Device) Init() error {
-	// If device object was initialised with a string path, open the file.
-	if dev.bus == nil {
-		file, err := os.OpenFile(dev.Path, os.O_RDWR, os.ModeCharDevice)
-		if err != nil {
-			return fmt.Errorf("failed to open i2c device at '%s': %s", dev.Path, err)
-		}
-		dev.bus = file
+	file, err := os.OpenFile(dev.Path, os.O_RDWR, os.ModeCharDevice)
+	if err != nil {
+		return fmt.Errorf("failed to open i2c device at '%s': %s", dev.Path, err)
 	}
+	dev.bus = file
 
 	// Initialise the I2C bus
-	err := unix.IoctlSetInt(int(dev.bus.Fd()), I2C_SLAVE, int(dev.Address))
+	err = unix.IoctlSetInt(int(dev.bus.Fd()), I2C_SLAVE, int(dev.Address))
 	if err != nil {
 		return fmt.Errorf("failed to write to i2c device at address '%02b': %s",
 			dev.Address, err)
