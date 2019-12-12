@@ -58,8 +58,8 @@ const (
 )
 
 const (
-	Low State = iota
-	High
+	Low State = 0x00
+	High = 0xFF
 )
 
 const (

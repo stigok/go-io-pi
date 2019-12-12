@@ -202,8 +202,8 @@ func TestSetPortDirection(t *testing.T) {
 		file := NewFakeFile()
 		dev := NewDevice(file, 0x20)
 
-		dev.SetPortDirection(PortB, 0x55)
-		if !file.HasCall("Write", []byte{ IODIRB, 0x55}) {
+		dev.SetPortDirection(PortB, High)
+		if !file.HasCall("Write", []byte{ IODIRB, 0xFF}) {
 			t.Error("did not write expected data", file.CallHistory)
 		}
 	})
