@@ -354,7 +354,7 @@ func TestSetBit(t *testing.T) {
 
 func TestGetBit(t *testing.T) {
 	var b byte = 0b01000000
-	bit := getBit(b, 6)
+	bit := GetBit(b, 6)
 	if bit != 1 {
 		t.Error("expected bit was not set")
 	}

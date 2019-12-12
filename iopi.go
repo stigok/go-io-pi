@@ -303,7 +303,7 @@ func GetPinPort(pin uint8) (uint8, Port) {
 func (dev *Device) ReadPin(pin uint8) (State, error) {
 	pin, port := GetPinPort(pin)
 	portState, err := dev.ReadPort(port)
-	return State(getBit(portState, pin)), err
+	return State(GetBit(portState, pin)), err
 }
 
 // Set a single bit in a byte. All values except 0 is considered 1.
@@ -316,7 +316,7 @@ func SetBit(byt byte, bit uint8, value int) byte {
 }
 
 // Get a single bit in a byte.
-func getBit(byt byte, bit uint8) uint8 {
+func GetBit(byt byte, bit uint8) uint8 {
 	if byt&(1<<bit) > 0 {
 		return 1
 	} else {
