@@ -53,8 +53,8 @@ const (
 )
 
 const (
-	Output Mode = iota
-	Input
+	Output Mode = 0x00
+	Input = 0xFF
 )
 
 const (

@@ -40,3 +40,25 @@ func TestRead(t *testing.T) {
 		}
 	})
 }
+
+func TestInit(t *testing.T) {
+	file := NewFakeFile()
+	dev := NewDevice(file, 0x20)
+
+	dev.driverInit()
+
+	t.Run("performs mcp23017 chip init", func(t *testing.T) {
+		if !file.HasCall("Write", []byte{ IOCON, 0x22 }) {
+			t.Error("expected registers not written to")
+		}
+	})
+
+	t.Run("port direction explicitly set to normal", func(t *testing.T) {
+		if !file.HasCall("Write", []byte{ IODIRA, 0xFF }) {
+			t.Error("port A not normalised")
+		}
+		if !file.HasCall("Write", []byte{ IODIRB, 0xFF }) {
+			t.Error("port B not normalised")
+		}
+	})
+}
