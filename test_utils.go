@@ -56,15 +56,15 @@ func (f *FakeFile) Write(b []byte) (int, error) {
 	return n, nil
 }
 
-func (f FakeFile) Close() error {
+func (f *FakeFile) Close() error {
 	return nil
 }
 
-func (f FakeFile) Fd() uintptr {
+func (f *FakeFile) Fd() uintptr {
 	return 0
 }
 
-func (f FakeFile) Name() string {
+func (f *FakeFile) Name() string {
 	return "fake"
 }
 
