@@ -48,8 +48,8 @@ const (
 )
 
 const (
-	PolarityNormal Polarity = iota
-	PolarityInverted
+	PolarityNormal Polarity = 0x00
+	PolarityInverted = 0xFF
 )
 
 const (

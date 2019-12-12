@@ -154,8 +154,8 @@ func TestSetPortPolarity(t *testing.T) {
 		file := NewFakeFile()
 		dev := NewDevice(file, 0x20)
 
-		dev.SetPortPolarity(PortB, 0x55)
-		if !file.HasCall("Write", []byte{ IPOLB, 0x55}) {
+		dev.SetPortPolarity(PortB, PolarityInverted)
+		if !file.HasCall("Write", []byte{ IPOLB, 0xFF}) {
 			t.Error("did not write expected data", file.CallHistory)
 		}
 	})
