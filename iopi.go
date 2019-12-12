@@ -62,6 +62,11 @@ const (
 	High
 )
 
+const (
+	PullupDisabled Mode = 0x00
+	PullupEnabled = 0xFF
+)
+
 // Create a new device object.
 // `bus` can be a string path to a file, or an os.File pointer to let multiple
 // devices share the same file descriptor.
@@ -153,19 +158,19 @@ func (dev *Device) WriteByteData(reg byte, value byte) error {
 }
 
 // Collectively enable 100K pull-up resistors on all pins on a port.
-func (dev *Device) SetPortPullups(port Port, state byte) error {
+func (dev *Device) SetPortPullups(port Port, state Mode) error {
 	switch port {
 	case PortA:
-		return dev.WriteByteData(GPPUA, state)
+		return dev.WriteByteData(GPPUA, byte(state))
 	case PortB:
-		return dev.WriteByteData(GPPUB, state)
+		return dev.WriteByteData(GPPUB, byte(state))
 	default:
 		return fmt.Errorf("invalid port: %v\n", port)
 	}
 }
 
 // Enable 100K pull-up resistor on a single pin
-func (dev *Device) SetPinPullup(pin uint8, enabledState byte) error {
+func (dev *Device) SetPinPullup(pin uint8, enabledState Mode) error {
 	pin, port := translatePin(pin)
 
 	var reg byte
@@ -180,12 +185,9 @@ func (dev *Device) SetPinPullup(pin uint8, enabledState byte) error {
 		return fmt.Errorf("failed to set pin pullup: %s", err)
 	}
 
-	// TODO: Replace int here with an enum value
-	if enabledState > 0 {
-		enabledState = 1
-	}
+	state = setBit(state, pin, int(enabledState))
 
-	return dev.SetPortPullups(port, setBit(state, pin, int(enabledState)))
+	return dev.SetPortPullups(port, Mode(state))
 }
 
 // Collectively set the polarity of all pins on a port.
