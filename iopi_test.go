@@ -90,3 +90,25 @@ func TestClose(t *testing.T) {
 		t.Error("file was not closed")
 	}
 }
+
+func TestSetPortPullups(t *testing.T) {
+	t.Run("port A", func (t *testing.T) {
+		file := NewFakeFile()
+		dev := NewDevice(file, 0x20)
+
+		dev.SetPortPullups(PortA, 0x55)
+		if !file.HasCall("Write", []byte{ GPPUA, 0x55}) {
+			t.Error("did not write expected data", file.CallHistory)
+		}
+	})
+
+	t.Run("port B", func (t *testing.T) {
+		file := NewFakeFile()
+		dev := NewDevice(file, 0x20)
+
+		dev.SetPortPullups(PortB, 0x55)
+		if !file.HasCall("Write", []byte{ GPPUB, 0x55}) {
+			t.Error("did not write expected data", file.CallHistory)
+		}
+	})
+}
