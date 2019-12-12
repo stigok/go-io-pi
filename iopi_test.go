@@ -345,7 +345,7 @@ func TestReadPin(t *testing.T) {
 
 func TestSetBit(t *testing.T) {
 	var b byte = 0b00000000
-	b = setBit(b, 3, 1)
+	b = SetBit(b, 3, 1)
 
 	if b != 0b00001000 {
 		t.Error("expected bit was not set")

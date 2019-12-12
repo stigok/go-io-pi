@@ -185,7 +185,7 @@ func (dev *Device) SetPinPullup(pin uint8, enabledState Mode) error {
 		return fmt.Errorf("failed to set pin pullup: %s", err)
 	}
 
-	state = setBit(state, pin, int(enabledState))
+	state = SetBit(state, pin, int(enabledState))
 
 	return dev.SetPortPullup(port, Mode(state))
 }
@@ -219,7 +219,7 @@ func (dev *Device) SetPinPolarity(pin uint8, pol Polarity) error {
 		return fmt.Errorf("failed to set pin polarity: %s", err)
 	}
 
-	return dev.WriteByteData(reg, setBit(state, pin, int(pol)))
+	return dev.WriteByteData(reg, SetBit(state, pin, int(pol)))
 }
 
 // Collectively set all pins on a port to specific mode.
@@ -250,7 +250,7 @@ func (dev *Device) SetPinMode(pin uint8, mode Mode) error {
 		return fmt.Errorf("failed to set pin direction: %s", err)
 	}
 
-	return dev.WriteByteData(reg, setBit(state, pin, int(mode)))
+	return dev.WriteByteData(reg, SetBit(state, pin, int(mode)))
 }
 
 // Collectively set all pins on the port to a specific state.
@@ -286,7 +286,7 @@ func (dev *Device) WritePin(pin uint8, state State) error {
 		return fmt.Errorf("failed to write to pin %v: %s\n", pin, err)
 	}
 
-	newState := setBit(portState, pin, int(state))
+	newState := SetBit(portState, pin, int(state))
 	return dev.WritePort(port, newState)
 }
 
@@ -307,7 +307,7 @@ func (dev *Device) ReadPin(pin uint8) (State, error) {
 }
 
 // Set a single bit in a byte. All values except 0 is considered 1.
-func setBit(byt byte, bit uint8, value int) byte {
+func SetBit(byt byte, bit uint8, value int) byte {
 	if value == 0 {
 		return (byt &^ (1 << bit)) // clear bit
 	} else {
