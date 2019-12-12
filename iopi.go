@@ -108,8 +108,8 @@ func (dev *Device) driverInit() {
 	// Board initialisation
 	// TODO: Handle errors
 	dev.WriteByteData(IOCON, 0x22) // MCP23017 specific
-	dev.SetPortDirection(PortA, Input)
-	dev.SetPortDirection(PortB, Input)
+	dev.SetPortMode(PortA, Input)
+	dev.SetPortMode(PortB, Input)
 	dev.SetPortPullup(PortA, 0x00)
 	dev.SetPortPullup(PortB, 0x00)
 	dev.SetPortPolarity(PortA, PolarityNormal)
@@ -223,7 +223,7 @@ func (dev *Device) SetPinPolarity(pin uint8, pol Polarity) error {
 }
 
 // Collectively set all pins on a port to specific mode.
-func (dev *Device) SetPortDirection(port Port, mode Mode) error {
+func (dev *Device) SetPortMode(port Port, mode Mode) error {
 	switch port {
 	case PortA:
 		return dev.WriteByteData(IODIRA, byte(mode))
@@ -235,7 +235,7 @@ func (dev *Device) SetPortDirection(port Port, mode Mode) error {
 }
 
 // Set direction of a single pin
-func (dev *Device) SetPinDirection(pin uint8, mode Mode) error {
+func (dev *Device) SetPinMode(pin uint8, mode Mode) error {
 	pin, port := translatePin(pin)
 
 	var reg byte

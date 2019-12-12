@@ -187,12 +187,12 @@ func TestSetPinPolarity(t *testing.T) {
 	})
 }
 
-func TestSetPortDirection(t *testing.T) {
+func TestSetPortMode(t *testing.T) {
 	t.Run("port A", func (t *testing.T) {
 		file := NewFakeFile()
 		dev := NewDevice(file, 0x20)
 
-		dev.SetPortDirection(PortA, 0x55)
+		dev.SetPortMode(PortA, 0x55)
 		if !file.HasCall("Write", []byte{ IODIRA, 0x55}) {
 			t.Error("did not write expected data", file.CallHistory)
 		}
@@ -202,20 +202,20 @@ func TestSetPortDirection(t *testing.T) {
 		file := NewFakeFile()
 		dev := NewDevice(file, 0x20)
 
-		dev.SetPortDirection(PortB, High)
+		dev.SetPortMode(PortB, High)
 		if !file.HasCall("Write", []byte{ IODIRB, 0xFF}) {
 			t.Error("did not write expected data", file.CallHistory)
 		}
 	})
 }
 
-func TestSetPinDirection(t *testing.T) {
+func TestSetPinMode(t *testing.T) {
 	t.Run("pin number < 8", func (t *testing.T) {
 		file := NewFakeFile()
 		dev := NewDevice(file, 0x20)
 
 		file.NextRead = []byte{ 0x00, 0x00 }
-		dev.SetPinDirection(7, 1)
+		dev.SetPinMode(7, 1)
 
 		if !file.HasCall("Write", []byte{ IODIRA, 0b01000000 }) {
 			t.Error("did not write expected data", file.CallHistory)
@@ -227,7 +227,7 @@ func TestSetPinDirection(t *testing.T) {
 		dev := NewDevice(file, 0x20)
 
 		file.NextRead = []byte{ 0x00, 0x00 }
-		dev.SetPinDirection(16, 1)
+		dev.SetPinMode(16, 1)
 
 		if !file.HasCall("Write", []byte{ IODIRB, 0b10000000 }) {
 			t.Error("did not write expected data", file.CallHistory)
