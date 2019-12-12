@@ -202,7 +202,7 @@ func (dev *Device) SetPortPolarity(port Port, pol Polarity) error {
 }
 
 // Set polarity of a single pin
-func (dev *Device) SetPolarity(pin uint8, pol Polarity) error {
+func (dev *Device) SetPinPolarity(pin uint8, pol Polarity) error {
 	pin, port := translatePin(pin)
 
 	var reg byte
