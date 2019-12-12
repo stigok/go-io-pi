@@ -110,8 +110,8 @@ func (dev *Device) driverInit() {
 	dev.WriteByteData(IOCON, 0x22) // MCP23017 specific
 	dev.SetPortDirection(PortA, Input)
 	dev.SetPortDirection(PortB, Input)
-	dev.SetPortPullups(PortA, 0x00)
-	dev.SetPortPullups(PortB, 0x00)
+	dev.SetPortPullup(PortA, 0x00)
+	dev.SetPortPullup(PortB, 0x00)
 	dev.SetPortPolarity(PortA, PolarityNormal)
 	dev.SetPortPolarity(PortB, PolarityNormal)
 }
@@ -158,7 +158,7 @@ func (dev *Device) WriteByteData(reg byte, value byte) error {
 }
 
 // Collectively enable 100K pull-up resistors on all pins on a port.
-func (dev *Device) SetPortPullups(port Port, state Mode) error {
+func (dev *Device) SetPortPullup(port Port, state Mode) error {
 	switch port {
 	case PortA:
 		return dev.WriteByteData(GPPUA, byte(state))
@@ -187,7 +187,7 @@ func (dev *Device) SetPinPullup(pin uint8, enabledState Mode) error {
 
 	state = setBit(state, pin, int(enabledState))
 
-	return dev.SetPortPullups(port, Mode(state))
+	return dev.SetPortPullup(port, Mode(state))
 }
 
 // Collectively set the polarity of all pins on a port.
