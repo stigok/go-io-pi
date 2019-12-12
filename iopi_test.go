@@ -309,9 +309,9 @@ func TestWritePin(t *testing.T) {
 	})
 }
 
-func TestTranslatePin(t *testing.T) {
+func TestGetPinPort(t *testing.T) {
 	t.Run("pin <= 8", func (t *testing.T) {
-		pin, port := translatePin(7)
+		pin, port := GetPinPort(7)
 		if pin != 7 - 1 {
 			t.Error("pin number off by one")
 		}
@@ -321,7 +321,7 @@ func TestTranslatePin(t *testing.T) {
 	})
 
 	t.Run("pin > 8", func (t *testing.T) {
-		pin, port := translatePin(16)
+		pin, port := GetPinPort(16)
 		if pin != 8 - 1 {
 			t.Error("pin number off by one")
 		}

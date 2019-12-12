@@ -171,7 +171,7 @@ func (dev *Device) SetPortPullup(port Port, state Mode) error {
 
 // Enable 100K pull-up resistor on a single pin
 func (dev *Device) SetPinPullup(pin uint8, enabledState Mode) error {
-	pin, port := translatePin(pin)
+	pin, port := GetPinPort(pin)
 
 	var reg byte
 	if port == PortA {
@@ -205,7 +205,7 @@ func (dev *Device) SetPortPolarity(port Port, pol Polarity) error {
 
 // Set polarity of a single pin
 func (dev *Device) SetPinPolarity(pin uint8, pol Polarity) error {
-	pin, port := translatePin(pin)
+	pin, port := GetPinPort(pin)
 
 	var reg byte
 	if port == PortA {
@@ -236,7 +236,7 @@ func (dev *Device) SetPortMode(port Port, mode Mode) error {
 
 // Set direction of a single pin
 func (dev *Device) SetPinMode(pin uint8, mode Mode) error {
-	pin, port := translatePin(pin)
+	pin, port := GetPinPort(pin)
 
 	var reg byte
 	if port == PortA {
@@ -280,7 +280,7 @@ func (dev *Device) ReadPort(port Port) (byte, error) {
 
 // Set single pin to a specific state.
 func (dev *Device) WritePin(pin uint8, state State) error {
-	pin, port := translatePin(pin)
+	pin, port := GetPinPort(pin)
 	portState, err := dev.ReadPort(port)
 	if err != nil {
 		return fmt.Errorf("failed to write to pin %v: %s\n", pin, err)
@@ -291,7 +291,7 @@ func (dev *Device) WritePin(pin uint8, state State) error {
 }
 
 // Translate a pin number 1-16 into 0-index pin on a specific port.
-func translatePin(pin uint8) (uint8, Port) {
+func GetPinPort(pin uint8) (uint8, Port) {
 	if pin > 8 {
 		return pin - 1 - 8, PortB
 	} else {
@@ -301,7 +301,7 @@ func translatePin(pin uint8) (uint8, Port) {
 
 // Return the state of a single pin.
 func (dev *Device) ReadPin(pin uint8) (State, error) {
-	pin, port := translatePin(pin)
+	pin, port := GetPinPort(pin)
 	portState, err := dev.ReadPort(port)
 	return State(getBit(portState, pin)), err
 }
