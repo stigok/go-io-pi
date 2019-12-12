@@ -57,6 +57,7 @@ func (f *FakeFile) Write(b []byte) (int, error) {
 }
 
 func (f *FakeFile) Close() error {
+	f.recordCall("Close", nil)
 	return nil
 }
 

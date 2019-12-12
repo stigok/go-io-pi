@@ -80,3 +80,13 @@ func TestInit(t *testing.T) {
 		}
 	})
 }
+
+func TestClose(t *testing.T) {
+	file := NewFakeFile()
+	dev := NewDevice(file, 0x20)
+	dev.Close()
+
+	if !file.HasCall("Close", nil) {
+		t.Error("file was not closed")
+	}
+}
