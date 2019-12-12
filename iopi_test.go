@@ -112,3 +112,29 @@ func TestSetPortPullups(t *testing.T) {
 		}
 	})
 }
+
+func TestSetPinPullup(t *testing.T) {
+	t.Run("pin number < 8", func (t *testing.T) {
+		file := NewFakeFile()
+		dev := NewDevice(file, 0x20)
+
+		file.NextRead = []byte{ 0x00, 0x00 }
+		dev.SetPinPullup(7, 1)
+
+		if !file.HasCall("Write", []byte{ GPPUA, 0b01000000 }) {
+			t.Error("did not write expected data", file.CallHistory)
+		}
+	})
+
+	t.Run("pin number > 8", func (t *testing.T) {
+		file := NewFakeFile()
+		dev := NewDevice(file, 0x20)
+
+		file.NextRead = []byte{ 0x00, 0x00 }
+		dev.SetPinPullup(16, 1)
+
+		if !file.HasCall("Write", []byte{ GPPUB, 0b10000000 }) {
+			t.Error("did not write expected data", file.CallHistory)
+		}
+	})
+}

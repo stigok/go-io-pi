@@ -165,7 +165,7 @@ func (dev *Device) SetPortPullups(port Port, state byte) error {
 }
 
 // Enable 100K pull-up resistor on a single pin
-func (dev *Device) SetPinPullup(pin uint8, state byte) error {
+func (dev *Device) SetPinPullup(pin uint8, enabledState byte) error {
 	pin, port := translatePin(pin)
 
 	var reg byte
@@ -180,7 +180,12 @@ func (dev *Device) SetPinPullup(pin uint8, state byte) error {
 		return fmt.Errorf("failed to set pin pullup: %s", err)
 	}
 
-	return dev.WriteByteData(reg, setBit(state, pin, int(state)))
+	// TODO: Replace int here with an enum value
+	if enabledState > 0 {
+		enabledState = 1
+	}
+
+	return dev.SetPortPullups(port, setBit(state, pin, int(enabledState)))
 }
 
 // Collectively set the polarity of all pins on a port.

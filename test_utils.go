@@ -11,16 +11,18 @@ type Call struct {
 type FakeFile struct {
 	Buf []byte
 	CallHistory []Call
+	NextRead []byte
 }
 
 func NewFakeFile() *FakeFile {
 	return &FakeFile{
 		Buf: make([]byte, 2),
+		NextRead: nil,
 	}
 }
 
 func (c Call) String() string {
-	return fmt.Sprintf("%s: 0x%02x", c.Fn, c.Arg)
+	return fmt.Sprintf("%s: 0x%08b", c.Fn, c.Arg)
 }
 
 // Records a call to the file API
@@ -42,6 +44,13 @@ func (f *FakeFile) HasCall(fn string, arg []byte) bool {
 
 func (f *FakeFile) Read(b []byte) (int, error) {
 	f.recordCall("Read", b)
+
+	// Allow for faking outputs
+	if f.NextRead != nil {
+		n := copy(b, f.NextRead)
+		f.NextRead = nil
+		return n, nil
+	}
 
 	n := copy(b, f.Buf)
 	return n, nil
