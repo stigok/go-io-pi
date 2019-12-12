@@ -138,3 +138,51 @@ func TestSetPinPullup(t *testing.T) {
 		}
 	})
 }
+
+func TestSetPortPolarity(t *testing.T) {
+	t.Run("port A", func (t *testing.T) {
+		file := NewFakeFile()
+		dev := NewDevice(file, 0x20)
+
+		dev.SetPortPolarity(PortA, 0x55)
+		if !file.HasCall("Write", []byte{ IPOLA, 0x55}) {
+			t.Error("did not write expected data", file.CallHistory)
+		}
+	})
+
+	t.Run("port B", func (t *testing.T) {
+		file := NewFakeFile()
+		dev := NewDevice(file, 0x20)
+
+		dev.SetPortPolarity(PortB, 0x55)
+		if !file.HasCall("Write", []byte{ IPOLB, 0x55}) {
+			t.Error("did not write expected data", file.CallHistory)
+		}
+	})
+}
+
+func TestSetPinPolarity(t *testing.T) {
+	t.Run("pin number < 8", func (t *testing.T) {
+		file := NewFakeFile()
+		dev := NewDevice(file, 0x20)
+
+		file.NextRead = []byte{ 0x00, 0x00 }
+		dev.SetPinPolarity(7, 1)
+
+		if !file.HasCall("Write", []byte{ IPOLA, 0b01000000 }) {
+			t.Error("did not write expected data", file.CallHistory)
+		}
+	})
+
+	t.Run("pin number > 8", func (t *testing.T) {
+		file := NewFakeFile()
+		dev := NewDevice(file, 0x20)
+
+		file.NextRead = []byte{ 0x00, 0x00 }
+		dev.SetPinPolarity(16, 1)
+
+		if !file.HasCall("Write", []byte{ IPOLB, 0b10000000 }) {
+			t.Error("did not write expected data", file.CallHistory)
+		}
+	})
+}
