@@ -53,12 +53,30 @@ func TestInit(t *testing.T) {
 		}
 	})
 
-	t.Run("port direction explicitly set to normal", func(t *testing.T) {
+	t.Run("port mode set to input", func(t *testing.T) {
 		if !file.HasCall("Write", []byte{ IODIRA, 0xFF }) {
-			t.Error("port A not normalised")
+			t.Error("port A not configured")
 		}
 		if !file.HasCall("Write", []byte{ IODIRB, 0xFF }) {
-			t.Error("port B not normalised")
+			t.Error("port B not configured")
+		}
+	})
+
+	t.Run("port pullup resistors disabled", func (t *testing.T) {
+		if !file.HasCall("Write", []byte{ GPPUA, 0x00 }) {
+			t.Error("port A not configured")
+		}
+		if !file.HasCall("Write", []byte{ GPPUB, 0x00 }) {
+			t.Error("port B not configured")
+		}
+	})
+
+	t.Run("port polarity inversion disabled", func (t *testing.T) {
+		if !file.HasCall("Write", []byte{ IPOLA, 0x00 }) {
+			t.Error("port A not configured")
+		}
+		if !file.HasCall("Write", []byte{ IPOLB, 0x00 }) {
+			t.Error("port B not configured")
 		}
 	})
 }
