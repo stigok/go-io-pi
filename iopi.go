@@ -48,23 +48,23 @@ const (
 )
 
 const (
-	PolarityNormal Polarity = 0x00
-	PolarityInverted = 0xFF
+	PolarityNormal   Polarity = 0x00
+	PolarityInverted          = 0xFF
 )
 
 const (
 	Output Mode = 0x00
-	Input = 0xFF
+	Input       = 0xFF
 )
 
 const (
-	Low State = 0x00
-	High = 0xFF
+	Low  State = 0x00
+	High       = 0xFF
 )
 
 const (
 	PullupDisabled Mode = 0x00
-	PullupEnabled = 0xFF
+	PullupEnabled       = 0xFF
 )
 
 // Create a new device object.
@@ -76,8 +76,8 @@ const (
 func NewDevice(file ReadWriteCloserSpecial, addr byte) *Device {
 	dev := Device{
 		Address: addr,
-		Path: file.Name(),
-		bus: file,
+		Path:    file.Name(),
+		bus:     file,
 	}
 
 	return &dev

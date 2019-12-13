@@ -4,19 +4,19 @@ import "fmt"
 
 // Used as a spy when testing
 type Call struct {
-	Fn string
+	Fn  string
 	Arg []byte
 }
 
 type FakeFile struct {
-	Buf []byte
+	Buf         []byte
 	CallHistory []Call
-	NextRead []byte
+	NextRead    []byte
 }
 
 func NewFakeFile() *FakeFile {
 	return &FakeFile{
-		Buf: make([]byte, 2),
+		Buf:      make([]byte, 2),
 		NextRead: nil,
 	}
 }
@@ -27,7 +27,7 @@ func (c Call) String() string {
 
 // Records a call to the file API
 func (f *FakeFile) recordCall(fn string, arg []byte) {
-	call := Call{ fn, arg }
+	call := Call{fn, arg}
 	f.CallHistory = append(f.CallHistory, call)
 }
 
@@ -35,7 +35,7 @@ func (f *FakeFile) recordCall(fn string, arg []byte) {
 // instance.
 func (f *FakeFile) HasCall(fn string, arg []byte) bool {
 	for _, call := range f.CallHistory {
-		if fmt.Sprintf("%s", call) == fmt.Sprintf("%s", Call{ fn, arg}) {
+		if fmt.Sprintf("%s", call) == fmt.Sprintf("%s", Call{fn, arg}) {
 			return true
 		}
 	}

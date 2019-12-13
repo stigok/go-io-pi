@@ -48,34 +48,34 @@ func TestInit(t *testing.T) {
 	dev.driverInit()
 
 	t.Run("performs mcp23017 chip init", func(t *testing.T) {
-		if !file.HasCall("Write", []byte{ IOCON, 0x22 }) {
+		if !file.HasCall("Write", []byte{IOCON, 0x22}) {
 			t.Error("expected registers not written to")
 		}
 	})
 
 	t.Run("port mode set to input", func(t *testing.T) {
-		if !file.HasCall("Write", []byte{ IODIRA, 0xFF }) {
+		if !file.HasCall("Write", []byte{IODIRA, 0xFF}) {
 			t.Error("port A not configured")
 		}
-		if !file.HasCall("Write", []byte{ IODIRB, 0xFF }) {
+		if !file.HasCall("Write", []byte{IODIRB, 0xFF}) {
 			t.Error("port B not configured")
 		}
 	})
 
-	t.Run("port pullup resistors disabled", func (t *testing.T) {
-		if !file.HasCall("Write", []byte{ GPPUA, 0x00 }) {
+	t.Run("port pullup resistors disabled", func(t *testing.T) {
+		if !file.HasCall("Write", []byte{GPPUA, 0x00}) {
 			t.Error("port A not configured")
 		}
-		if !file.HasCall("Write", []byte{ GPPUB, 0x00 }) {
+		if !file.HasCall("Write", []byte{GPPUB, 0x00}) {
 			t.Error("port B not configured")
 		}
 	})
 
-	t.Run("port polarity inversion disabled", func (t *testing.T) {
-		if !file.HasCall("Write", []byte{ IPOLA, 0x00 }) {
+	t.Run("port polarity inversion disabled", func(t *testing.T) {
+		if !file.HasCall("Write", []byte{IPOLA, 0x00}) {
 			t.Error("port A not configured")
 		}
-		if !file.HasCall("Write", []byte{ IPOLB, 0x00 }) {
+		if !file.HasCall("Write", []byte{IPOLB, 0x00}) {
 			t.Error("port B not configured")
 		}
 	})
@@ -92,227 +92,227 @@ func TestClose(t *testing.T) {
 }
 
 func TestSetPortPullup(t *testing.T) {
-	t.Run("port A", func (t *testing.T) {
+	t.Run("port A", func(t *testing.T) {
 		file := NewFakeFile()
 		dev := NewDevice(file, 0x20)
 
 		dev.SetPortPullup(PortA, 0x55)
-		if !file.HasCall("Write", []byte{ GPPUA, 0x55}) {
+		if !file.HasCall("Write", []byte{GPPUA, 0x55}) {
 			t.Error("did not write expected data", file.CallHistory)
 		}
 	})
 
-	t.Run("port B", func (t *testing.T) {
+	t.Run("port B", func(t *testing.T) {
 		file := NewFakeFile()
 		dev := NewDevice(file, 0x20)
 
 		dev.SetPortPullup(PortB, 0x55)
-		if !file.HasCall("Write", []byte{ GPPUB, 0x55}) {
+		if !file.HasCall("Write", []byte{GPPUB, 0x55}) {
 			t.Error("did not write expected data", file.CallHistory)
 		}
 	})
 }
 
 func TestSetPinPullup(t *testing.T) {
-	t.Run("pin number < 8", func (t *testing.T) {
+	t.Run("pin number < 8", func(t *testing.T) {
 		file := NewFakeFile()
 		dev := NewDevice(file, 0x20)
 
-		file.NextRead = []byte{ 0x00, 0x00 }
+		file.NextRead = []byte{0x00, 0x00}
 		dev.SetPinPullup(7, 1)
 
-		if !file.HasCall("Write", []byte{ GPPUA, 0b01000000 }) {
+		if !file.HasCall("Write", []byte{GPPUA, 0b01000000}) {
 			t.Error("did not write expected data", file.CallHistory)
 		}
 	})
 
-	t.Run("pin number > 8", func (t *testing.T) {
+	t.Run("pin number > 8", func(t *testing.T) {
 		file := NewFakeFile()
 		dev := NewDevice(file, 0x20)
 
-		file.NextRead = []byte{ 0x00, 0x00 }
+		file.NextRead = []byte{0x00, 0x00}
 		dev.SetPinPullup(16, 1)
 
-		if !file.HasCall("Write", []byte{ GPPUB, 0b10000000 }) {
+		if !file.HasCall("Write", []byte{GPPUB, 0b10000000}) {
 			t.Error("did not write expected data", file.CallHistory)
 		}
 	})
 }
 
 func TestSetPortPolarity(t *testing.T) {
-	t.Run("port A", func (t *testing.T) {
+	t.Run("port A", func(t *testing.T) {
 		file := NewFakeFile()
 		dev := NewDevice(file, 0x20)
 
 		dev.SetPortPolarity(PortA, 0x55)
-		if !file.HasCall("Write", []byte{ IPOLA, 0x55}) {
+		if !file.HasCall("Write", []byte{IPOLA, 0x55}) {
 			t.Error("did not write expected data", file.CallHistory)
 		}
 	})
 
-	t.Run("port B", func (t *testing.T) {
+	t.Run("port B", func(t *testing.T) {
 		file := NewFakeFile()
 		dev := NewDevice(file, 0x20)
 
 		dev.SetPortPolarity(PortB, PolarityInverted)
-		if !file.HasCall("Write", []byte{ IPOLB, 0xFF}) {
+		if !file.HasCall("Write", []byte{IPOLB, 0xFF}) {
 			t.Error("did not write expected data", file.CallHistory)
 		}
 	})
 }
 
 func TestSetPinPolarity(t *testing.T) {
-	t.Run("pin number < 8", func (t *testing.T) {
+	t.Run("pin number < 8", func(t *testing.T) {
 		file := NewFakeFile()
 		dev := NewDevice(file, 0x20)
 
-		file.NextRead = []byte{ 0x00, 0x00 }
+		file.NextRead = []byte{0x00, 0x00}
 		dev.SetPinPolarity(7, 1)
 
-		if !file.HasCall("Write", []byte{ IPOLA, 0b01000000 }) {
+		if !file.HasCall("Write", []byte{IPOLA, 0b01000000}) {
 			t.Error("did not write expected data", file.CallHistory)
 		}
 	})
 
-	t.Run("pin number > 8", func (t *testing.T) {
+	t.Run("pin number > 8", func(t *testing.T) {
 		file := NewFakeFile()
 		dev := NewDevice(file, 0x20)
 
-		file.NextRead = []byte{ 0x00, 0x00 }
+		file.NextRead = []byte{0x00, 0x00}
 		dev.SetPinPolarity(16, 1)
 
-		if !file.HasCall("Write", []byte{ IPOLB, 0b10000000 }) {
+		if !file.HasCall("Write", []byte{IPOLB, 0b10000000}) {
 			t.Error("did not write expected data", file.CallHistory)
 		}
 	})
 }
 
 func TestSetPortMode(t *testing.T) {
-	t.Run("port A", func (t *testing.T) {
+	t.Run("port A", func(t *testing.T) {
 		file := NewFakeFile()
 		dev := NewDevice(file, 0x20)
 
 		dev.SetPortMode(PortA, 0x55)
-		if !file.HasCall("Write", []byte{ IODIRA, 0x55}) {
+		if !file.HasCall("Write", []byte{IODIRA, 0x55}) {
 			t.Error("did not write expected data", file.CallHistory)
 		}
 	})
 
-	t.Run("port B", func (t *testing.T) {
+	t.Run("port B", func(t *testing.T) {
 		file := NewFakeFile()
 		dev := NewDevice(file, 0x20)
 
 		dev.SetPortMode(PortB, High)
-		if !file.HasCall("Write", []byte{ IODIRB, 0xFF}) {
+		if !file.HasCall("Write", []byte{IODIRB, 0xFF}) {
 			t.Error("did not write expected data", file.CallHistory)
 		}
 	})
 }
 
 func TestSetPinMode(t *testing.T) {
-	t.Run("pin number < 8", func (t *testing.T) {
+	t.Run("pin number < 8", func(t *testing.T) {
 		file := NewFakeFile()
 		dev := NewDevice(file, 0x20)
 
-		file.NextRead = []byte{ 0x00, 0x00 }
+		file.NextRead = []byte{0x00, 0x00}
 		dev.SetPinMode(7, 1)
 
-		if !file.HasCall("Write", []byte{ IODIRA, 0b01000000 }) {
+		if !file.HasCall("Write", []byte{IODIRA, 0b01000000}) {
 			t.Error("did not write expected data", file.CallHistory)
 		}
 	})
 
-	t.Run("pin number > 8", func (t *testing.T) {
+	t.Run("pin number > 8", func(t *testing.T) {
 		file := NewFakeFile()
 		dev := NewDevice(file, 0x20)
 
-		file.NextRead = []byte{ 0x00, 0x00 }
+		file.NextRead = []byte{0x00, 0x00}
 		dev.SetPinMode(16, 1)
 
-		if !file.HasCall("Write", []byte{ IODIRB, 0b10000000 }) {
+		if !file.HasCall("Write", []byte{IODIRB, 0b10000000}) {
 			t.Error("did not write expected data", file.CallHistory)
 		}
 	})
 }
 
 func TestWritePort(t *testing.T) {
-	t.Run("port A", func (t *testing.T) {
+	t.Run("port A", func(t *testing.T) {
 		file := NewFakeFile()
 		dev := NewDevice(file, 0x20)
 
 		dev.WritePort(PortA, 0xFF)
 
-		if !file.HasCall("Write", []byte{ GPIOA, 0xFF}) {
+		if !file.HasCall("Write", []byte{GPIOA, 0xFF}) {
 			t.Error("did not write expected data", file.CallHistory)
 		}
 	})
 
-	t.Run("port B", func (t *testing.T) {
+	t.Run("port B", func(t *testing.T) {
 		file := NewFakeFile()
 		dev := NewDevice(file, 0x20)
 
 		dev.WritePort(PortB, 0xFF)
 
-		if !file.HasCall("Write", []byte{ GPIOB, 0xFF}) {
+		if !file.HasCall("Write", []byte{GPIOB, 0xFF}) {
 			t.Error("did not write expected data", file.CallHistory)
 		}
 	})
 }
 
 func TestReadPort(t *testing.T) {
-	t.Run("port A", func (t *testing.T) {
+	t.Run("port A", func(t *testing.T) {
 		file := NewFakeFile()
 		dev := NewDevice(file, 0x20)
 
 		dev.ReadPort(PortA)
 
-		if !file.HasCall("Read", []byte{ GPIOA }) {
+		if !file.HasCall("Read", []byte{GPIOA}) {
 			t.Error("did not write expected data", file.CallHistory)
 		}
 	})
 
-	t.Run("port B", func (t *testing.T) {
+	t.Run("port B", func(t *testing.T) {
 		file := NewFakeFile()
 		dev := NewDevice(file, 0x20)
 
 		dev.ReadPort(PortB)
 
-		if !file.HasCall("Write", []byte{ GPIOB }) {
+		if !file.HasCall("Write", []byte{GPIOB}) {
 			t.Error("did not write expected data", file.CallHistory)
 		}
 	})
 }
 
 func TestWritePin(t *testing.T) {
-	t.Run("pin <= 8", func (t *testing.T) {
+	t.Run("pin <= 8", func(t *testing.T) {
 		file := NewFakeFile()
 		dev := NewDevice(file, 0x20)
 
-		file.NextRead = []byte{ 0x00, 0x00 }
+		file.NextRead = []byte{0x00, 0x00}
 		dev.WritePin(7, High)
 
-		if !file.HasCall("Write", []byte{ GPIOA, 0b01000000 }) {
+		if !file.HasCall("Write", []byte{GPIOA, 0b01000000}) {
 			t.Error("did not write expected data", file.CallHistory)
 		}
 	})
 
-	t.Run("pin > 8", func (t *testing.T) {
+	t.Run("pin > 8", func(t *testing.T) {
 		file := NewFakeFile()
 		dev := NewDevice(file, 0x20)
 
-		file.NextRead = []byte{ 0x00, 0x00 }
+		file.NextRead = []byte{0x00, 0x00}
 		dev.WritePin(15, High)
 
-		if !file.HasCall("Write", []byte{ GPIOB, 0b01000000 }) {
+		if !file.HasCall("Write", []byte{GPIOB, 0b01000000}) {
 			t.Error("did not write expected data", file.CallHistory)
 		}
 	})
 }
 
 func TestGetPinPort(t *testing.T) {
-	t.Run("pin <= 8", func (t *testing.T) {
+	t.Run("pin <= 8", func(t *testing.T) {
 		pin, port := GetPinPort(7)
-		if pin != 7 - 1 {
+		if pin != 7-1 {
 			t.Error("pin number off by one")
 		}
 		if port != PortA {
@@ -320,9 +320,9 @@ func TestGetPinPort(t *testing.T) {
 		}
 	})
 
-	t.Run("pin > 8", func (t *testing.T) {
+	t.Run("pin > 8", func(t *testing.T) {
 		pin, port := GetPinPort(16)
-		if pin != 8 - 1 {
+		if pin != 8-1 {
 			t.Error("pin number off by one")
 		}
 		if port != PortB {
@@ -331,14 +331,13 @@ func TestGetPinPort(t *testing.T) {
 	})
 }
 
-
 func TestReadPin(t *testing.T) {
 	// I don't know how to test this yet
-	t.Run("pin <= 8", func (t *testing.T) {
+	t.Run("pin <= 8", func(t *testing.T) {
 		t.Skip()
 	})
 
-	t.Run("pin > 8", func (t *testing.T) {
+	t.Run("pin > 8", func(t *testing.T) {
 		t.Skip()
 	})
 }
