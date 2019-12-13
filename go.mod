@@ -1,4 +1,4 @@
-module github.com/stigok/io-pi-plus
+module github.com/stigok/go-io-pi
 
 go 1.13
 
