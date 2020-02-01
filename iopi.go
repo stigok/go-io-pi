@@ -13,18 +13,6 @@ type Mode byte
 type Polarity byte
 type State uint8
 
-type Device struct {
-	Address byte   // I2C device address
-	Path    string // e.g. /dev/i2c-1
-	bus     ReadWriteCloserSpecial
-}
-
-type ReadWriteCloserSpecial interface {
-	io.ReadWriteCloser
-	Fd() uintptr
-	Name() string
-}
-
 const (
 	// As defined in the C implementation
 	IODIRA = 0x00
@@ -66,6 +54,18 @@ const (
 	PullupDisabled Mode = 0x00
 	PullupEnabled       = 0xFF
 )
+
+type Device struct {
+	Address byte   // I2C device address
+	Path    string // e.g. /dev/i2c-1
+	bus     ReadWriteCloserSpecial
+}
+
+type ReadWriteCloserSpecial interface {
+	io.ReadWriteCloser
+	Fd() uintptr
+	Name() string
+}
 
 // Create a new device object.
 // `bus` can be a string path to a file, or an os.File pointer to let multiple
