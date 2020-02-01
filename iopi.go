@@ -60,7 +60,7 @@ type Device struct {
 	Address byte   // I2C device address
 	Path    string // e.g. /dev/i2c-1
 	bus     ReadWriteCloserSpecial
-	mutex   sync.Mutex // enables sharing a file descriptor with other devices
+	mutex   *sync.Mutex // enables sharing a file descriptor with other devices
 }
 
 type ReadWriteCloserSpecial interface {
@@ -72,7 +72,7 @@ type ReadWriteCloserSpecial interface {
 // Create a new device object.
 // `bus` can be a string path to a file, or a pointer to a File so multiple
 // devices can share the same file descriptor. (e.g. two i2c addresses on same i2c bus)
-func NewDevice(file ReadWriteCloserSpecial, addr byte, mutex sync.Mutex) *Device {
+func NewDevice(file ReadWriteCloserSpecial, addr byte, mutex *sync.Mutex) *Device {
 	dev := Device{
 		Address: addr,
 		Path:    file.Name(),
