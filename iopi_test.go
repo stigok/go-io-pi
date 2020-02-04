@@ -2,12 +2,13 @@ package iopi
 
 import (
 	"reflect"
+	"sync"
 	"testing"
 )
 
 func TestWrite(t *testing.T) {
 	file := NewFakeFile()
-	dev := NewDevice(file, 0x20)
+	dev := NewDevice(file, 0x20, &sync.Mutex{})
 
 	file.Read([]byte{0x12})
 
@@ -25,7 +26,7 @@ func TestWrite(t *testing.T) {
 
 func TestRead(t *testing.T) {
 	file := NewFakeFile()
-	dev := NewDevice(file, 0x20)
+	dev := NewDevice(file, 0x20, &sync.Mutex{})
 
 	// This bears the same meaning as "reads from specified register"
 	t.Run("write register addr before read", func(t *testing.T) {
@@ -43,7 +44,7 @@ func TestRead(t *testing.T) {
 
 func TestInit(t *testing.T) {
 	file := NewFakeFile()
-	dev := NewDevice(file, 0x20)
+	dev := NewDevice(file, 0x20, &sync.Mutex{})
 
 	dev.driverInit()
 
@@ -83,7 +84,7 @@ func TestInit(t *testing.T) {
 
 func TestClose(t *testing.T) {
 	file := NewFakeFile()
-	dev := NewDevice(file, 0x20)
+	dev := NewDevice(file, 0x20, &sync.Mutex{})
 	dev.Close()
 
 	if !file.HasCall("Close", nil) {
@@ -94,7 +95,7 @@ func TestClose(t *testing.T) {
 func TestSetPortPullup(t *testing.T) {
 	t.Run("port A", func(t *testing.T) {
 		file := NewFakeFile()
-		dev := NewDevice(file, 0x20)
+		dev := NewDevice(file, 0x20, &sync.Mutex{})
 
 		dev.SetPortPullup(PortA, 0x55)
 		if !file.HasCall("Write", []byte{GPPUA, 0x55}) {
@@ -104,7 +105,7 @@ func TestSetPortPullup(t *testing.T) {
 
 	t.Run("port B", func(t *testing.T) {
 		file := NewFakeFile()
-		dev := NewDevice(file, 0x20)
+		dev := NewDevice(file, 0x20, &sync.Mutex{})
 
 		dev.SetPortPullup(PortB, 0x55)
 		if !file.HasCall("Write", []byte{GPPUB, 0x55}) {
@@ -116,7 +117,7 @@ func TestSetPortPullup(t *testing.T) {
 func TestSetPinPullup(t *testing.T) {
 	t.Run("pin number < 8", func(t *testing.T) {
 		file := NewFakeFile()
-		dev := NewDevice(file, 0x20)
+		dev := NewDevice(file, 0x20, &sync.Mutex{})
 
 		file.NextRead = []byte{0x00, 0x00}
 		dev.SetPinPullup(7, 1)
@@ -128,7 +129,7 @@ func TestSetPinPullup(t *testing.T) {
 
 	t.Run("pin number > 8", func(t *testing.T) {
 		file := NewFakeFile()
-		dev := NewDevice(file, 0x20)
+		dev := NewDevice(file, 0x20, &sync.Mutex{})
 
 		file.NextRead = []byte{0x00, 0x00}
 		dev.SetPinPullup(16, 1)
@@ -142,7 +143,7 @@ func TestSetPinPullup(t *testing.T) {
 func TestSetPortPolarity(t *testing.T) {
 	t.Run("port A", func(t *testing.T) {
 		file := NewFakeFile()
-		dev := NewDevice(file, 0x20)
+		dev := NewDevice(file, 0x20, &sync.Mutex{})
 
 		dev.SetPortPolarity(PortA, 0x55)
 		if !file.HasCall("Write", []byte{IPOLA, 0x55}) {
@@ -152,7 +153,7 @@ func TestSetPortPolarity(t *testing.T) {
 
 	t.Run("port B", func(t *testing.T) {
 		file := NewFakeFile()
-		dev := NewDevice(file, 0x20)
+		dev := NewDevice(file, 0x20, &sync.Mutex{})
 
 		dev.SetPortPolarity(PortB, PolarityInverted)
 		if !file.HasCall("Write", []byte{IPOLB, 0xFF}) {
@@ -164,7 +165,7 @@ func TestSetPortPolarity(t *testing.T) {
 func TestSetPinPolarity(t *testing.T) {
 	t.Run("pin number < 8", func(t *testing.T) {
 		file := NewFakeFile()
-		dev := NewDevice(file, 0x20)
+		dev := NewDevice(file, 0x20, &sync.Mutex{})
 
 		file.NextRead = []byte{0x00, 0x00}
 		dev.SetPinPolarity(7, 1)
@@ -176,7 +177,7 @@ func TestSetPinPolarity(t *testing.T) {
 
 	t.Run("pin number > 8", func(t *testing.T) {
 		file := NewFakeFile()
-		dev := NewDevice(file, 0x20)
+		dev := NewDevice(file, 0x20, &sync.Mutex{})
 
 		file.NextRead = []byte{0x00, 0x00}
 		dev.SetPinPolarity(16, 1)
@@ -190,7 +191,7 @@ func TestSetPinPolarity(t *testing.T) {
 func TestSetPortMode(t *testing.T) {
 	t.Run("port A", func(t *testing.T) {
 		file := NewFakeFile()
-		dev := NewDevice(file, 0x20)
+		dev := NewDevice(file, 0x20, &sync.Mutex{})
 
 		dev.SetPortMode(PortA, 0x55)
 		if !file.HasCall("Write", []byte{IODIRA, 0x55}) {
@@ -200,7 +201,7 @@ func TestSetPortMode(t *testing.T) {
 
 	t.Run("port B", func(t *testing.T) {
 		file := NewFakeFile()
-		dev := NewDevice(file, 0x20)
+		dev := NewDevice(file, 0x20, &sync.Mutex{})
 
 		dev.SetPortMode(PortB, High)
 		if !file.HasCall("Write", []byte{IODIRB, 0xFF}) {
@@ -212,7 +213,7 @@ func TestSetPortMode(t *testing.T) {
 func TestSetPinMode(t *testing.T) {
 	t.Run("pin number < 8", func(t *testing.T) {
 		file := NewFakeFile()
-		dev := NewDevice(file, 0x20)
+		dev := NewDevice(file, 0x20, &sync.Mutex{})
 
 		file.NextRead = []byte{0x00, 0x00}
 		dev.SetPinMode(7, 1)
@@ -224,7 +225,7 @@ func TestSetPinMode(t *testing.T) {
 
 	t.Run("pin number > 8", func(t *testing.T) {
 		file := NewFakeFile()
-		dev := NewDevice(file, 0x20)
+		dev := NewDevice(file, 0x20, &sync.Mutex{})
 
 		file.NextRead = []byte{0x00, 0x00}
 		dev.SetPinMode(16, 1)
@@ -238,7 +239,7 @@ func TestSetPinMode(t *testing.T) {
 func TestWritePort(t *testing.T) {
 	t.Run("port A", func(t *testing.T) {
 		file := NewFakeFile()
-		dev := NewDevice(file, 0x20)
+		dev := NewDevice(file, 0x20, &sync.Mutex{})
 
 		dev.WritePort(PortA, 0xFF)
 
@@ -249,7 +250,7 @@ func TestWritePort(t *testing.T) {
 
 	t.Run("port B", func(t *testing.T) {
 		file := NewFakeFile()
-		dev := NewDevice(file, 0x20)
+		dev := NewDevice(file, 0x20, &sync.Mutex{})
 
 		dev.WritePort(PortB, 0xFF)
 
@@ -262,7 +263,7 @@ func TestWritePort(t *testing.T) {
 func TestReadPort(t *testing.T) {
 	t.Run("port A", func(t *testing.T) {
 		file := NewFakeFile()
-		dev := NewDevice(file, 0x20)
+		dev := NewDevice(file, 0x20, &sync.Mutex{})
 
 		dev.ReadPort(PortA)
 
@@ -273,7 +274,7 @@ func TestReadPort(t *testing.T) {
 
 	t.Run("port B", func(t *testing.T) {
 		file := NewFakeFile()
-		dev := NewDevice(file, 0x20)
+		dev := NewDevice(file, 0x20, &sync.Mutex{})
 
 		dev.ReadPort(PortB)
 
@@ -286,7 +287,7 @@ func TestReadPort(t *testing.T) {
 func TestWritePin(t *testing.T) {
 	t.Run("pin <= 8", func(t *testing.T) {
 		file := NewFakeFile()
-		dev := NewDevice(file, 0x20)
+		dev := NewDevice(file, 0x20, &sync.Mutex{})
 
 		file.NextRead = []byte{0x00, 0x00}
 		dev.WritePin(7, High)
@@ -298,7 +299,7 @@ func TestWritePin(t *testing.T) {
 
 	t.Run("pin > 8", func(t *testing.T) {
 		file := NewFakeFile()
-		dev := NewDevice(file, 0x20)
+		dev := NewDevice(file, 0x20, &sync.Mutex{})
 
 		file.NextRead = []byte{0x00, 0x00}
 		dev.WritePin(15, High)
