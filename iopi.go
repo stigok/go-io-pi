@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sync"
 
 	"golang.org/x/sys/unix"
 )
@@ -12,18 +13,6 @@ type Port uint8
 type Mode byte
 type Polarity byte
 type State uint8
-
-type Device struct {
-	Address byte   // I2C device address
-	Path    string // e.g. /dev/i2c-1
-	bus     ReadWriteCloserSpecial
-}
-
-type ReadWriteCloserSpecial interface {
-	io.ReadWriteCloser
-	Fd() uintptr
-	Name() string
-}
 
 const (
 	// As defined in the C implementation
@@ -67,17 +56,28 @@ const (
 	PullupEnabled       = 0xFF
 )
 
+type Device struct {
+	Address byte   // I2C device address
+	Path    string // e.g. /dev/i2c-1
+	bus     ReadWriteCloserSpecial
+	mutex   *sync.Mutex // enables sharing a file descriptor with other devices
+}
+
+type ReadWriteCloserSpecial interface {
+	io.ReadWriteCloser
+	Fd() uintptr
+	Name() string
+}
+
 // Create a new device object.
-// `bus` can be a string path to a file, or an os.File pointer to let multiple
-// devices share the same file descriptor.
-//
-// TODO: It is not yet safe to share device file descriptors in a multi-threaded
-// environment.
-func NewDevice(file ReadWriteCloserSpecial, addr byte) *Device {
+// `bus` can be a string path to a file, or a pointer to a File so multiple
+// devices can share the same file descriptor. (e.g. two i2c addresses on same i2c bus)
+func NewDevice(file ReadWriteCloserSpecial, addr byte, mutex *sync.Mutex) *Device {
 	dev := Device{
 		Address: addr,
 		Path:    file.Name(),
 		bus:     file,
+		mutex:   mutex,
 	}
 
 	return &dev
@@ -128,6 +128,9 @@ func (dev *Device) ReadByteData(reg byte) (byte, error) {
 	buf := make([]byte, 1)
 	buf[0] = reg
 
+	dev.mutex.Lock()
+	defer dev.mutex.Unlock()
+
 	n, err := dev.bus.Write(buf)
 	if err != nil {
 		return 0x0, fmt.Errorf("failed to write to slave before read (wrote %v bytes): %s\n", n, err)
@@ -149,6 +152,9 @@ func (dev *Device) WriteByteData(reg byte, value byte) error {
 	buf := []byte{reg, value}
 
 	//fmt.Printf("write 0x%08b to addr 0x%08b\n", value, reg)
+	dev.mutex.Lock()
+	defer dev.mutex.Unlock()
+
 	n, err := dev.bus.Write(buf)
 	if err != nil {
 		return fmt.Errorf("failed to write to slave (wrote %v bytes): %s\n", n, err)
