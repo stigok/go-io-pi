@@ -110,8 +110,8 @@ func (dev *Device) driverInit() {
 	dev.WriteByteData(IOCON, 0x22) // MCP23017 specific
 	dev.SetPortMode(PortA, Input)
 	dev.SetPortMode(PortB, Input)
-	dev.SetPortPullup(PortA, 0x00)
-	dev.SetPortPullup(PortB, 0x00)
+	dev.SetPortPullup(PortA, PullupDisabled)
+	dev.SetPortPullup(PortB, PullupDisabled)
 	dev.SetPortPolarity(PortA, PolarityNormal)
 	dev.SetPortPolarity(PortB, PolarityNormal)
 }
