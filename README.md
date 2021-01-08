@@ -10,6 +10,10 @@ Only tested with the IO Pi Plus on a Raspberry Pi 3.
 
 The ABElectronics C library was used as a refererence implementation.
 
+## Documentation
+
+Please see the generated godoc https://godoc.org/github.com/stigok/go-io-pi
+
 ## Version
 
 This is in pre-release stage. Minor API changes might occur before first release.
