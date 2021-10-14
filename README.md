@@ -1,6 +1,6 @@
 # go-io-pi
 
-Golang code library for operating an IO Pi board
+Golang module for operating an IO Pi board
 
 - IO Pi
 - IO Pi Plus
