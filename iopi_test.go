@@ -10,8 +10,6 @@ func TestWrite(t *testing.T) {
 	file := NewFakeFile()
 	dev := NewDevice(file, 0x20, &sync.Mutex{})
 
-	file.Read([]byte{0x12})
-
 	t.Run("writes a byte to specified register", func(t *testing.T) {
 		err := dev.WriteByteData(0x42, 0x11)
 		if err != nil {
