@@ -1,5 +1,7 @@
 # go-io-pi
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/stigok/go-io-pi.svg)][godoc]
+
 Golang module for operating an IO Pi board
 
 - IO Pi
@@ -12,7 +14,7 @@ The ABElectronics C library was used as a refererence implementation.
 
 ## Documentation
 
-Please see the generated godoc https://godoc.org/github.com/stigok/go-io-pi
+Please see the generated [godoc][].
 
 ## Version
 
@@ -25,3 +27,5 @@ Minor API changes might occur before v1 release.
 ## License
 
 See [LICENSE](./LICENSE).
+
+[godoc]: https://godoc.org/github.com/stigok/go-io-pi
