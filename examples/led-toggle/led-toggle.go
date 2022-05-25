@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
-	"github.com/stigok/go-io-pi"
+	iopi "github.com/stigok/go-io-pi"
 )
 
 func main() {
@@ -16,7 +17,8 @@ func main() {
 		panic(err)
 	}
 
-	dev := iopi.NewDevice(file, 0x20) // Bus1: 0x20, Bus2: 0x21
+	mut := new(sync.Mutex)
+	dev := iopi.NewDevice(file, 0x20, mut) // Bus1: 0x20, Bus2: 0x21
 	err = dev.Init()
 	if err != nil {
 		panic(err)
@@ -26,16 +28,16 @@ func main() {
 	dev.SetPortMode(iopi.PortA, iopi.Output)
 	dev.SetPortMode(iopi.PortB, iopi.Output)
 
-	pins := []uint8{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }
+	pins := []uint8{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
 
 	fmt.Println("Enabling pins:", pins)
-	for _, p := range(pins) {
+	for _, p := range pins {
 		dev.WritePin(p, iopi.High)
 		time.Sleep(100 * time.Millisecond)
 	}
 
 	fmt.Println("Disabling pins:", pins)
-	for _, p := range(pins) {
+	for _, p := range pins {
 		dev.WritePin(p, iopi.Low)
 		time.Sleep(100 * time.Millisecond)
 	}
