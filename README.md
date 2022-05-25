@@ -6,7 +6,7 @@ Golang module for operating an IO Pi board
 - IO Pi Plus
 - IO Pi Zero
 
-Only tested with the IO Pi Plus on a Raspberry Pi 3.
+Only tested physically with the IO Pi Plus on a Raspberry Pi 3.
 
 The ABElectronics C library was used as a refererence implementation.
 
@@ -16,7 +16,12 @@ Please see the generated godoc https://godoc.org/github.com/stigok/go-io-pi
 
 ## Version
 
-This is in pre-release stage. Minor API changes might occur before first release.
+Minor API changes might occur before v1 release.
 
 ## References
+
 - https://github.com/abelectronicsuk/ABElectronics_C_Libraries
+
+## License
+
+See [LICENSE](./LICENSE).
